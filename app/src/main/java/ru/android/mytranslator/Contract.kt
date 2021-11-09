@@ -13,14 +13,6 @@ interface View {
     fun renderData(appState: AppState)
 }
 
-interface Presenter<T : AppState, V : View> {
-    fun attachView(view: V)
-
-    fun detachView(view: V)
-
-    fun getData(word: String, isOnline: Boolean)
-}
-
 // Слой бизнес-логики
 interface Interactor<T> {
     fun getData(word: String, isRemoteSource: Boolean): Observable<T>
