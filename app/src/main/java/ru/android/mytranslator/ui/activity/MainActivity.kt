@@ -5,6 +5,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.android.AndroidInjection
 import ru.android.mytranslator.AppState
 import ru.android.mytranslator.R
 import ru.android.mytranslator.View
@@ -12,20 +13,27 @@ import ru.android.mytranslator.databinding.AcMainBinding
 import ru.android.mytranslator.ui.MainAdapter
 import ru.android.mytranslator.ui.SearchDialogFragment
 import ru.android.mytranslator.viewmodel.MainViewModel
+import javax.inject.Inject
 
 class MainActivity : BaseActivity<AppState>(), View {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private lateinit var binding: AcMainBinding
     private var adapter: MainAdapter? = null
 
     override val model: MainViewModel by lazy {
-        ViewModelProvider.NewInstanceFactory().create(MainViewModel::class.java)
+        viewModelFactory.create(MainViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
+
         super.onCreate(savedInstanceState)
         binding = AcMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         binding.searchFab.setOnClickListener {
             val searchDialogFragment = SearchDialogFragment.newInstance()
             searchDialogFragment.setOnSearchClickListener(object :
@@ -36,6 +44,10 @@ class MainActivity : BaseActivity<AppState>(), View {
             })
             searchDialogFragment.show(supportFragmentManager, BOTTOM_SHEET_FRAGMENT_DIALOG_TAG)
         }
+
+        binding.mainActivityRecyclerview.layoutManager = LinearLayoutManager(applicationContext)
+        adapter = MainAdapter { }
+        binding.mainActivityRecyclerview.adapter = adapter
     }
 
     override fun renderData(appState: AppState) {

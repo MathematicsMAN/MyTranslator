@@ -6,12 +6,10 @@ import ru.android.mytranslator.Interactor
 import ru.android.mytranslator.data.DataSourceRemote
 import ru.android.mytranslator.interactor.MainInteractor
 import ru.android.mytranslator.repository.RepoImpl
+import javax.inject.Inject
 
-class MainViewModel(
-    private val interactor: Interactor<AppState> = MainInteractor(
-        remoteRepository = RepoImpl(DataSourceRemote()),
-        localRepository = RepoImpl(DataSourceRemote()) // todo localRepo
-    ),
+class MainViewModel @Inject constructor(
+    private val interactor: MainInteractor
 ) : BaseViewModel<AppState>() {
 
     fun getWordDescriptions(word: String, isOnline: Boolean) {
