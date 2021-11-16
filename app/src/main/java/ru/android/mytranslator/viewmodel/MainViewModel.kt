@@ -2,14 +2,10 @@ package ru.android.mytranslator.viewmodel
 
 import io.reactivex.observers.DisposableObserver
 import ru.android.mytranslator.AppState
-import ru.android.mytranslator.Interactor
-import ru.android.mytranslator.data.DataSourceRemote
 import ru.android.mytranslator.interactor.MainInteractor
-import ru.android.mytranslator.repository.RepoImpl
-import javax.inject.Inject
 
-class MainViewModel @Inject constructor(
-    private val interactor: MainInteractor
+class MainViewModel(
+    private val interactor: MainInteractor,
 ) : BaseViewModel<AppState>() {
 
     fun getWordDescriptions(word: String, isOnline: Boolean) {
