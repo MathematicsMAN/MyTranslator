@@ -22,9 +22,9 @@ class MainActivity : BaseActivity<AppState>(), View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = AcMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         binding.searchFab.setOnClickListener {
             val searchDialogFragment = SearchDialogFragment.newInstance()
             searchDialogFragment.setOnSearchClickListener(object :

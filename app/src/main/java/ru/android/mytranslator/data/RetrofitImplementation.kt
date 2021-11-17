@@ -1,7 +1,5 @@
 package ru.android.mytranslator.data
 
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import io.reactivex.Observable
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -12,7 +10,7 @@ import ru.android.mytranslator.DataSource
 
 class RetrofitImplementation : DataSource<List<DataModel>> {
 
-    override fun getData(word: String): Observable<List<DataModel>> {
+    override suspend fun getData(word: String): List<DataModel> {
         return createRetrofit().create<ApiService>().search(word)
     }
 
@@ -20,7 +18,6 @@ class RetrofitImplementation : DataSource<List<DataModel>> {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(createOkHtpClient())
             .build()
     }

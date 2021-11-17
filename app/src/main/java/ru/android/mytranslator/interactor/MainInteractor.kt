@@ -1,6 +1,5 @@
 package ru.android.mytranslator.interactor
 
-import io.reactivex.Observable
 import ru.android.mytranslator.AppState
 import ru.android.mytranslator.DataModel
 import ru.android.mytranslator.Interactor
@@ -11,11 +10,13 @@ class MainInteractor(
     private val localRepository: Repository<List<DataModel>>,
 ) : Interactor<AppState> {
 
-    override fun getData(word: String, isRemoteSource: Boolean): Observable<AppState> {
+    override suspend fun getData(word: String, isRemoteSource: Boolean): AppState {
         return if (isRemoteSource) {
-            remoteRepository.getData(word).map { AppState.Success(it) }
+            val data = remoteRepository.getData(word)
+            AppState.Success(data)
         } else {
-            localRepository.getData(word).map { AppState.Success(it) }
+            val data = localRepository.getData(word)
+            AppState.Success(data)
         }
     }
 }
