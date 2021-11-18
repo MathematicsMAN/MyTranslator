@@ -14,44 +14,23 @@ class MainActivity : AppCompatActivity() {
 
     private val binding by lazy { AcMainBinding.inflate(layoutInflater) }
 
+    private val stateFlow = MutableStateFlow(0)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val flow = getFlow()
-        val flow2 = getFlow2()
+        CoroutineScope(Dispatchers.Main).launch {
+//            stateFlow.collect {
+//                Log.d(TAG, "Получили значение: $it")
+//            }
+        }
+
         binding.flowButton.setOnClickListener {
-            startFlow(flow, flow2)
+            stateFlow.value = stateFlow.value + 1
+            Log.d(TAG, "обновили значение StateFlow: ${stateFlow.value}")
         }
-    }
 
-    private fun getFlow(): Flow<Int> = flow {
-        Log.d(TAG, "start flow")
-        (1..10).forEach {
-            delay(300)
-            Log.d(TAG, "Flow отдаёт значение $it")
-            emit(it)
-        }
-    }
-
-    private fun getFlow2() = flow {
-        Log.d(TAG, "start flow2")
-        ('a'..'t').forEach {
-            delay(100)
-            Log.d(TAG, "Flow2 отдаёт значение $it")
-            emit(it)
-        }
-    }
-
-    private fun startFlow(flow: Flow<Int>, flow2: Flow<Char>) = CoroutineScope(Dispatchers.Main).launch {
-        flow
-            .flowOn(Dispatchers.IO)
-            .map { it * 3 }
-            .filter { it % 2 == 0 }
-            .zip(flow2) { f1, f2 -> "$f1 $f2" }
-            .collect {
-                Log.d(TAG, "Activity получила значение flow: $it")
-            }
     }
 
     companion object {
