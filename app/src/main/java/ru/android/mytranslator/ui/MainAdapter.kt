@@ -1,4 +1,4 @@
-package ru.android.mytranslator.presenter
+package ru.android.mytranslator.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,7 +9,7 @@ import ru.android.mytranslator.DataModel
 import ru.android.mytranslator.databinding.ItemWordBinding
 
 class MainAdapter(
-    private val itemClickListener: (DataModel) -> Unit
+    private val itemClickListener: (DataModel) -> Unit,
 ) : ListAdapter<DataModel, MainAdapter.MainViewHolder>(MainCallBack) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainAdapter.MainViewHolder {

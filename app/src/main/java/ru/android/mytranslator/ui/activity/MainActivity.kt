@@ -1,40 +1,53 @@
-package ru.android.mytranslator.ui
+package ru.android.mytranslator.ui.activity
 
 import android.os.Bundle
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.android.AndroidInjection
 import ru.android.mytranslator.AppState
-import ru.android.mytranslator.Presenter
 import ru.android.mytranslator.R
 import ru.android.mytranslator.View
 import ru.android.mytranslator.databinding.AcMainBinding
-import ru.android.mytranslator.presenter.MainAdapter
-import ru.android.mytranslator.presenter.MainPresenter
+import ru.android.mytranslator.ui.MainAdapter
+import ru.android.mytranslator.ui.SearchDialogFragment
+import ru.android.mytranslator.viewmodel.MainViewModel
+import javax.inject.Inject
 
-class MainActivity : BaseActivity<AppState>() {
+class MainActivity : BaseActivity<AppState>(), View {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private lateinit var binding: AcMainBinding
     private var adapter: MainAdapter? = null
 
-    override fun createPresenter(): Presenter<AppState, View> {
-        return MainPresenter()
+    override val model: MainViewModel by lazy {
+        viewModelFactory.create(MainViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
+
         super.onCreate(savedInstanceState)
         binding = AcMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         binding.searchFab.setOnClickListener {
             val searchDialogFragment = SearchDialogFragment.newInstance()
             searchDialogFragment.setOnSearchClickListener(object :
                 SearchDialogFragment.OnSearchClickListener {
                 override fun onClick(searchWord: String) {
-                    presenter.getData(searchWord, true)
+                    model.getWordDescriptions(searchWord, true)
                 }
             })
             searchDialogFragment.show(supportFragmentManager, BOTTOM_SHEET_FRAGMENT_DIALOG_TAG)
         }
+
+        binding.mainActivityRecyclerview.layoutManager = LinearLayoutManager(applicationContext)
+        adapter = MainAdapter { }
+        binding.mainActivityRecyclerview.adapter = adapter
     }
 
     override fun renderData(appState: AppState) {
@@ -76,7 +89,7 @@ class MainActivity : BaseActivity<AppState>() {
         showViewError()
         binding.errorTextview.text = error ?: getString(R.string.undefined_error)
         binding.reloadButton.setOnClickListener {
-            presenter.getData("hi", true)
+            model.getWordDescriptions("hi", true)
         }
     }
 
