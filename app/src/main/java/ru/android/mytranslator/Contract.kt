@@ -1,7 +1,5 @@
 package ru.android.mytranslator
 
-import io.reactivex.Observable
-
 //состояние одного экрана
 sealed interface AppState {
     data class Success(val data: List<DataModel>) : AppState
@@ -15,15 +13,15 @@ interface View {
 
 // Слой бизнес-логики
 interface Interactor<T> {
-    fun getData(word: String, isRemoteSource: Boolean): Observable<T>
+   suspend fun getData(word: String, isRemoteSource: Boolean): T
 }
 
 // Получение и/или хранение данных для передачи интерактору
 interface Repository<T> {
-    fun getData(word: String): Observable<T>
+    suspend fun getData(word: String): T
 }
 
 // Источник данных для репозитория
 interface DataSource<T> {
-    fun getData(word: String): Observable<T>
+    suspend fun getData(word: String): T
 }

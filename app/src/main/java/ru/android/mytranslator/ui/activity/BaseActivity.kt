@@ -7,7 +7,7 @@ import ru.android.mytranslator.viewmodel.BaseViewModel
 
 abstract class BaseActivity<T : AppState> : AppCompatActivity() {
 
-    abstract val model: BaseViewModel<T>
+    protected abstract val model: BaseViewModel<T>
 
     abstract fun renderData(appState: T)
 

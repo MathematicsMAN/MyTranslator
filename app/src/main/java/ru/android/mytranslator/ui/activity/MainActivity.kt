@@ -3,9 +3,8 @@ package ru.android.mytranslator.ui.activity
 import android.os.Bundle
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import dagger.android.AndroidInjection
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.android.mytranslator.AppState
 import ru.android.mytranslator.R
 import ru.android.mytranslator.View
@@ -13,27 +12,19 @@ import ru.android.mytranslator.databinding.AcMainBinding
 import ru.android.mytranslator.ui.MainAdapter
 import ru.android.mytranslator.ui.SearchDialogFragment
 import ru.android.mytranslator.viewmodel.MainViewModel
-import javax.inject.Inject
 
 class MainActivity : BaseActivity<AppState>(), View {
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private lateinit var binding: AcMainBinding
     private var adapter: MainAdapter? = null
 
-    override val model: MainViewModel by lazy {
-        viewModelFactory.create(MainViewModel::class.java)
-    }
+    override val model: MainViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
-
         super.onCreate(savedInstanceState)
+
         binding = AcMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         binding.searchFab.setOnClickListener {
             val searchDialogFragment = SearchDialogFragment.newInstance()
             searchDialogFragment.setOnSearchClickListener(object :
