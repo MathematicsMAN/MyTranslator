@@ -9,6 +9,8 @@
         <entry key="app/src/main/res/drawable/bottom_sheet_dialog_background.xml" value="0.2125" />
         <entry key="app/src/main/res/drawable/ic_delete_text.xml" value="0.2125" />
         <entry key="app/src/main/res/drawable/ic_search.xml" value="0.2125" />
+        <entry key="app/src/main/res/layout/ac_description.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/ac_main.xml" value="0.12962962962962962" />
         <entry key="app/src/main/res/layout/fr_search_dialog.xml" value="0.19635416666666666" />
       </map>
     </option>

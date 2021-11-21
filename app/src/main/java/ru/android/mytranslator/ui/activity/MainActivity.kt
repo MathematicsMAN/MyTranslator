@@ -11,6 +11,7 @@ import ru.android.mytranslator.View
 import ru.android.mytranslator.databinding.AcMainBinding
 import ru.android.mytranslator.ui.MainAdapter
 import ru.android.mytranslator.ui.SearchDialogFragment
+import ru.android.mytranslator.ui.description.DescriptionActivity
 import ru.android.mytranslator.viewmodel.MainViewModel
 
 class MainActivity : BaseActivity<AppState>(), View {
@@ -37,7 +38,18 @@ class MainActivity : BaseActivity<AppState>(), View {
         }
 
         binding.mainActivityRecyclerview.layoutManager = LinearLayoutManager(applicationContext)
-        adapter = MainAdapter { }
+        adapter = MainAdapter { dataModel ->
+            startActivity(
+                DescriptionActivity.getIntent(
+                    this,
+                    word = dataModel.text.orEmpty(),
+                    description = dataModel.meaning?.joinToString {
+                        it.translation?.translation.orEmpty()
+                    }.orEmpty(),
+                    imageUrl = dataModel.meaning?.firstOrNull()?.imageUrl
+                )
+            )
+        }
         binding.mainActivityRecyclerview.adapter = adapter
     }
 
