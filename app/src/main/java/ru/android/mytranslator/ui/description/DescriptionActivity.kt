@@ -6,6 +6,9 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.transform.CircleCropTransformation
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -14,6 +17,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.*
 import ru.android.mytranslator.R
 import ru.android.mytranslator.databinding.AcDescriptionBinding
 import ru.android.mytranslator.ui.activity.isOnline
@@ -25,6 +29,10 @@ class DescriptionActivity : AppCompatActivity() {
     private val word by lazy { intent.extras?.getString(KEY_WORD).orEmpty() }
     private val description by lazy { intent.extras?.getString(KEY_DESCRIPTION).orEmpty() }
     private val imageUrl by lazy { intent.extras?.getString(KEY_IMAGE_URL) }
+
+    private val coroutineScope = CoroutineScope(
+        Dispatchers.Main + SupervisorJob()
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +70,8 @@ class DescriptionActivity : AppCompatActivity() {
             stopLoading()
         } else {
 //            usePicassoLoading(imageUrl)
-            useGlideLoading(imageUrl)
+//            useGlideLoading(imageUrl)
+            useCoilLoading(imageUrl)
         }
     }
 
@@ -104,7 +113,6 @@ class DescriptionActivity : AppCompatActivity() {
                     stopLoading()
                     return false
                 }
-
             })
             .apply {
                 RequestOptions()
@@ -127,6 +135,35 @@ class DescriptionActivity : AppCompatActivity() {
                     binding.descriptionImage.setImageResource(R.drawable.ic_search)
                 }
             })
+    }
+
+    private fun useCoilLoading(imageUrl: String) {
+        val request = ImageRequest.Builder(this)
+            .data("https:$imageUrl")
+            .target(
+                onStart = {},
+                onSuccess = { result ->
+                    stopLoading()
+                    binding.descriptionImage.setImageDrawable(result)
+                },
+                onError = {
+                    stopLoading()
+                    binding.descriptionImage.setImageResource(R.drawable.ic_search)
+                }
+            )
+            .transformations(
+                CircleCropTransformation()
+            )
+            .build()
+
+        coroutineScope.launch {
+            ImageLoader(this@DescriptionActivity).execute(request)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineScope.cancel()
     }
 
     companion object {
