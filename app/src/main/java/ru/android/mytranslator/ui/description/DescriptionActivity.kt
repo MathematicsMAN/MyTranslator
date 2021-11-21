@@ -2,16 +2,21 @@ package ru.android.mytranslator.ui.description
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import ru.android.mytranslator.R
 import ru.android.mytranslator.databinding.AcDescriptionBinding
 import ru.android.mytranslator.ui.activity.isOnline
-import java.lang.Exception
 
 class DescriptionActivity : AppCompatActivity() {
 
@@ -35,7 +40,7 @@ class DescriptionActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
+        return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
                 true
@@ -56,7 +61,8 @@ class DescriptionActivity : AppCompatActivity() {
         if (imageUrl == null) {
             stopLoading()
         } else {
-            usePicassoLoading(imageUrl)
+//            usePicassoLoading(imageUrl)
+            useGlideLoading(imageUrl)
         }
     }
 
@@ -74,7 +80,38 @@ class DescriptionActivity : AppCompatActivity() {
     }
 
     private fun useGlideLoading(imageUrl: String) {
+        Glide.with(binding.descriptionImage)
+            .load("https:$imageUrl")
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    stopLoading()
+                    binding.descriptionImage.setImageResource(R.drawable.ic_search)
+                    return false
+                }
 
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    stopLoading()
+                    return false
+                }
+
+            })
+            .apply {
+                RequestOptions()
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .centerCrop()
+            }
+            .into(binding.descriptionImage)
     }
 
     private fun usePicassoLoading(imageUrl: String) {
