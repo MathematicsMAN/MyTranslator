@@ -13,7 +13,11 @@ interface View {
 
 // Слой бизнес-логики
 interface Interactor<T> {
-   suspend fun getData(word: String, isRemoteSource: Boolean): T
+    suspend fun getData(word: String, isRemoteSource: Boolean): T
+}
+
+interface IHistoryInteractor<T> {
+    suspend fun getData(): T
 }
 
 // Получение и/или хранение данных для передачи интерактору
@@ -24,4 +28,13 @@ interface Repository<T> {
 // Источник данных для репозитория
 interface DataSource<T> {
     suspend fun getData(word: String): T
+}
+
+interface DataSourceLocal<T> : DataSource<T> {
+
+    suspend fun saveData(appState: AppState)
+}
+
+interface RepositoryLocal<T> : Repository<T> {
+    suspend fun saveData(appState: AppState)
 }
