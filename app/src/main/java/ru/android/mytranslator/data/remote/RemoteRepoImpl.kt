@@ -1,10 +1,10 @@
-package ru.android.mytranslator.repository
+package ru.android.mytranslator.data.remote
 
 import ru.android.mytranslator.DataModel
 import ru.android.mytranslator.DataSource
 import ru.android.mytranslator.Repository
 
-class RepoImpl(
+class RemoteRepoImpl(
     private val dataSource: DataSource<List<DataModel>>,
 ) : Repository<List<DataModel>> {
 
