@@ -1,6 +1,8 @@
 package ru.android.mytranslator.ui.activity
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,6 +13,8 @@ import ru.android.mytranslator.View
 import ru.android.mytranslator.databinding.AcMainBinding
 import ru.android.mytranslator.ui.MainAdapter
 import ru.android.mytranslator.ui.SearchDialogFragment
+import ru.android.mytranslator.ui.description.DescriptionActivity
+import ru.android.mytranslator.ui.history.HistoryActivity
 import ru.android.mytranslator.viewmodel.MainViewModel
 
 class MainActivity : BaseActivity<AppState>(), View {
@@ -37,8 +41,34 @@ class MainActivity : BaseActivity<AppState>(), View {
         }
 
         binding.mainActivityRecyclerview.layoutManager = LinearLayoutManager(applicationContext)
-        adapter = MainAdapter { }
+        adapter = MainAdapter { dataModel ->
+            startActivity(
+                DescriptionActivity.getIntent(
+                    this,
+                    word = dataModel.text.orEmpty(),
+                    description = dataModel.meaning?.joinToString {
+                        it.translation?.translation.orEmpty()
+                    }.orEmpty(),
+                    imageUrl = dataModel.meaning?.firstOrNull()?.imageUrl
+                )
+            )
+        }
         binding.mainActivityRecyclerview.adapter = adapter
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.historyItem -> {
+                startActivity(HistoryActivity.createIntent(this))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun renderData(appState: AppState) {

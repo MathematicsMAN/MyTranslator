@@ -1,4 +1,4 @@
-package ru.android.mytranslator.ui
+package ru.android.mytranslator.ui.history
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,19 +8,21 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.android.mytranslator.DataModel
 import ru.android.mytranslator.databinding.ItemWordBinding
 
-class MainAdapter(
-    private val itemClickListener: (DataModel) -> Unit,
-) : ListAdapter<DataModel, MainAdapter.MainViewHolder>(MainCallBack) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
-        return MainViewHolder(parent)
+class HistoryAdapter : ListAdapter<DataModel, HistoryAdapter.HistoryViewHolder>(HistoryCallBack) {
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): HistoryViewHolder {
+        return HistoryViewHolder(parent)
     }
 
-    override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
         holder.bind(currentList[position])
     }
 
-    inner class MainViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
+    inner class HistoryViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
         ItemWordBinding.inflate(parent.inflate(), parent, false).root
     ) {
         fun bind(data: DataModel) {
@@ -29,15 +31,13 @@ class MainAdapter(
             binder.headerTextviewRecyclerItem.text = data.text
             binder.descriptionTextviewRecyclerItem.text =
                 data.meaning?.firstOrNull()?.translation?.translation
-            binder.root.setOnClickListener { itemClickListener(data) }
         }
     }
 
     private fun ViewGroup.inflate() = LayoutInflater.from(context)
-
 }
 
-object MainCallBack : DiffUtil.ItemCallback<DataModel>() {
+object HistoryCallBack : DiffUtil.ItemCallback<DataModel>() {
     override fun areItemsTheSame(oldItem: DataModel, newItem: DataModel): Boolean {
         return oldItem == newItem
     }

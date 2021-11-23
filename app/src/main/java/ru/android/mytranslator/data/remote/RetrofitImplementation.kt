@@ -1,4 +1,4 @@
-package ru.android.mytranslator.data
+package ru.android.mytranslator.data.remote
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

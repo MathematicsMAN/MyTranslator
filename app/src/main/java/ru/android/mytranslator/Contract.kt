@@ -16,6 +16,10 @@ interface Interactor<T> {
    suspend fun getData(word: String, isRemoteSource: Boolean): T
 }
 
+interface IHistoryInteractor {
+    suspend fun getData(): AppState
+}
+
 // Получение и/или хранение данных для передачи интерактору
 interface Repository<T> {
     suspend fun getData(word: String): T
@@ -24,4 +28,13 @@ interface Repository<T> {
 // Источник данных для репозитория
 interface DataSource<T> {
     suspend fun getData(word: String): T
+}
+
+interface DataSourceLocal<T> : DataSource<T> {
+
+    suspend fun saveData(appState: AppState)
+}
+
+interface RepositoryLocal<T> : Repository<T> {
+    suspend fun saveData(appState: AppState)
 }
