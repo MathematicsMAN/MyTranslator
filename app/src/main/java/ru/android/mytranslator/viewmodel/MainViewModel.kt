@@ -1,12 +1,12 @@
 package ru.android.mytranslator.viewmodel
 
 import kotlinx.coroutines.*
-import ru.android.mytranslator.AppState
+import ru.android.models.AppState
 import ru.android.mytranslator.interactor.MainInteractor
 
 class MainViewModel(
     private val interactor: MainInteractor,
-) : BaseViewModel<AppState>() {
+) : ru.android.base.BaseViewModel<AppState>() {
 
     private val viewModelScope = CoroutineScope(
         Dispatchers.Main + SupervisorJob()
