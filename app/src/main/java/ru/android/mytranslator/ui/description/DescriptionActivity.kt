@@ -2,21 +2,12 @@ package ru.android.mytranslator.ui.description
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import coil.ImageLoader
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
-import com.squareup.picasso.Callback
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.*
 import ru.android.mytranslator.R
 import ru.android.mytranslator.databinding.AcDescriptionBinding
@@ -69,8 +60,6 @@ class DescriptionActivity : AppCompatActivity() {
         if (imageUrl == null) {
             stopLoading()
         } else {
-//            usePicassoLoading(imageUrl)
-//            useGlideLoading(imageUrl)
             useCoilLoading(imageUrl)
         }
     }
@@ -86,55 +75,6 @@ class DescriptionActivity : AppCompatActivity() {
 
     private fun stopLoading() {
         binding.root.isRefreshing = false
-    }
-
-    private fun useGlideLoading(imageUrl: String) {
-        Glide.with(binding.descriptionImage)
-            .load("https:$imageUrl")
-            .listener(object : RequestListener<Drawable> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    stopLoading()
-                    binding.descriptionImage.setImageResource(R.drawable.ic_search)
-                    return false
-                }
-
-                override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    stopLoading()
-                    return false
-                }
-            })
-            .apply {
-                RequestOptions()
-                    .placeholder(R.drawable.ic_launcher_foreground)
-                    .centerCrop()
-            }
-            .into(binding.descriptionImage)
-    }
-
-    private fun usePicassoLoading(imageUrl: String) {
-        Picasso.get().load("https:$imageUrl")
-            .placeholder(R.drawable.ic_launcher_foreground).fit().centerCrop()
-            .into(binding.descriptionImage, object : Callback {
-                override fun onSuccess() {
-                    stopLoading()
-                }
-
-                override fun onError(e: Exception?) {
-                    stopLoading()
-                    binding.descriptionImage.setImageResource(R.drawable.ic_search)
-                }
-            })
     }
 
     private fun useCoilLoading(imageUrl: String) {
