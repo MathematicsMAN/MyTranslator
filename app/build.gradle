@@ -6,11 +6,10 @@ plugins {
 
 android {
     compileSdk 31
+    buildToolsVersion "31.0.0"
 
     defaultConfig {
         applicationId "ru.android.mytranslator"
-        minSdk 21
-        targetSdk 31
         versionCode 1
         versionName "1.0"
 
@@ -36,6 +35,11 @@ android {
 }
 
 dependencies {
+
+    implementation project(Modules.Models)
+    implementation project(Modules.Data)
+    implementation project(Modules.Base)
+    implementation project(Modules.History)
 
     implementation Android.CoreKtx
     implementation Android.AppCompat

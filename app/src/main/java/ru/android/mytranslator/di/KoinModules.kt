@@ -1,17 +1,10 @@
 package ru.android.mytranslator.di
 
 import androidx.room.Room
-import org.koin.core.qualifier.named
-import org.koin.core.scope.get
 import org.koin.dsl.module
-import ru.android.mytranslator.*
-import ru.android.mytranslator.data.remote.RetrofitImplementation
-import ru.android.mytranslator.data.local.HistoryDatabase
-import ru.android.mytranslator.data.local.LocalRepoImpl
-import ru.android.mytranslator.data.local.RoomDataSource
+import ru.android.models.*
 import ru.android.mytranslator.interactor.MainInteractor
-import ru.android.mytranslator.data.remote.RemoteRepoImpl
-import ru.android.mytranslator.interactor.history.HistoryInteractor
+import ru.android.history.interactor.HistoryInteractor
 import ru.android.mytranslator.ui.history.HistoryViewModel
 import ru.android.mytranslator.viewmodel.MainViewModel
 
@@ -19,26 +12,26 @@ val application = module {
     single {
         Room.databaseBuilder(
             get(),
-            HistoryDatabase::class.java,
+            ru.android.data.local.HistoryDatabase::class.java,
             "HistoryDB.db"
         ).build()
     }
-    single { get<HistoryDatabase>().historyDao() }
+    single { get<ru.android.data.local.HistoryDatabase>().historyDao() }
 
-    single<DataSource<List<DataModel>>>() {
-        RetrofitImplementation()
+    single<DataSource<List<DataModel>>> {
+        ru.android.data.remote.RetrofitImplementation()
     }
 
-    single<Repository<List<DataModel>>>() {
-        RemoteRepoImpl(get())
+    single<Repository<List<DataModel>>> {
+        ru.android.data.remote.RemoteRepoImpl(get())
     }
 
-    single<DataSourceLocal<List<DataModel>>>() {
-        RoomDataSource(get())
+    single<DataSourceLocal<List<DataModel>>> {
+        ru.android.data.local.RoomDataSource(get())
     }
 
-    single<RepositoryLocal<List<DataModel>>>() {
-        LocalRepoImpl(get())
+    single<RepositoryLocal<List<DataModel>>> {
+        ru.android.data.local.LocalRepoImpl(get())
     }
 }
 

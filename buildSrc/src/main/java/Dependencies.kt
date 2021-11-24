@@ -1,3 +1,20 @@
+import org.gradle.api.JavaVersion
+
+object Config {
+    const val compileSdk = 31
+    const val minSdk = 21
+    const val targetSdk = 31
+
+    val javaVersion = JavaVersion.VERSION_1_8
+}
+
+object Modules {
+    const val Models = ":models"
+    const val Data = ":data"
+    const val History = ":history"
+    const val Base = ":base"
+}
+
 object Version {
     const val retrofit = "2.9.0"
     const val okHttp = "4.9.2"

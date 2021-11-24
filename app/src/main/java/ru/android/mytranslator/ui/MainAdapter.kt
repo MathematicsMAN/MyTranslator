@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import ru.android.mytranslator.DataModel
+import ru.android.models.DataModel
 import ru.android.mytranslator.databinding.ItemWordBinding
 
 class MainAdapter(

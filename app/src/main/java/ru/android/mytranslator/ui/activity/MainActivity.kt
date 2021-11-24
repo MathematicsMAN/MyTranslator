@@ -6,18 +6,17 @@ import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.recyclerview.widget.LinearLayoutManager
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import ru.android.mytranslator.AppState
+import ru.android.models.AppState
 import ru.android.mytranslator.R
-import ru.android.mytranslator.View
+import ru.android.models.View
 import ru.android.mytranslator.databinding.AcMainBinding
 import ru.android.mytranslator.ui.MainAdapter
 import ru.android.mytranslator.ui.SearchDialogFragment
 import ru.android.mytranslator.ui.description.DescriptionActivity
-import ru.android.mytranslator.ui.history.HistoryActivity
+import ru.android.history.ui.HistoryActivity
 import ru.android.mytranslator.viewmodel.MainViewModel
 
-class MainActivity : BaseActivity<AppState>(), View {
+class MainActivity : ru.android.base.BaseActivity<AppState>(), View {
 
     private lateinit var binding: AcMainBinding
     private var adapter: MainAdapter? = null
@@ -94,7 +93,7 @@ class MainActivity : BaseActivity<AppState>(), View {
                 if (appState.progress != null) {
                     binding.progressBarHorizontal.visibility = VISIBLE
                     binding.progressBarRound.visibility = GONE
-                    binding.progressBarHorizontal.progress = appState.progress
+                    binding.progressBarHorizontal.progress = appState.progress!!
                 } else {
                     binding.progressBarHorizontal.visibility = GONE
                     binding.progressBarRound.visibility = VISIBLE

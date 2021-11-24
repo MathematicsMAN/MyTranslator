@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.description.DescriptionActivity" />
-        <activity android:name=".ui.history.HistoryActivity" />
+        <activity android:name="ru.android.history.ui.HistoryActivity" />
     </application>
 
 </manifest>

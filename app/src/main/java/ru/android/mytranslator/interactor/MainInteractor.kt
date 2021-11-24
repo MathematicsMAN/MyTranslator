@@ -1,6 +1,10 @@
 package ru.android.mytranslator.interactor
 
-import ru.android.mytranslator.*
+import ru.android.models.DataModel
+import ru.android.models.AppState
+import ru.android.models.Interactor
+import ru.android.models.Repository
+import ru.android.models.RepositoryLocal
 
 class MainInteractor(
     private val remoteRepository: Repository<List<DataModel>>,
