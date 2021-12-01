@@ -6,14 +6,16 @@ import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.recyclerview.widget.LinearLayoutManager
+import org.koin.android.ext.android.getKoin
+import org.koin.core.qualifier.named
+import ru.android.history.ui.HistoryActivity
 import ru.android.models.AppState
-import ru.android.mytranslator.R
 import ru.android.models.View
+import ru.android.mytranslator.R
 import ru.android.mytranslator.databinding.AcMainBinding
 import ru.android.mytranslator.ui.MainAdapter
 import ru.android.mytranslator.ui.SearchDialogFragment
 import ru.android.mytranslator.ui.description.DescriptionActivity
-import ru.android.history.ui.HistoryActivity
 import ru.android.mytranslator.viewmodel.MainViewModel
 
 class MainActivity : ru.android.base.BaseActivity<AppState>(), View {
@@ -21,7 +23,10 @@ class MainActivity : ru.android.base.BaseActivity<AppState>(), View {
     private lateinit var binding: AcMainBinding
     private var adapter: MainAdapter? = null
 
-    override val model: MainViewModel by viewModel()
+    private val mainActivityScope =
+        getKoin().createScope("MainActivityScope", named<MainActivity>())
+
+    override val model: MainViewModel by mainActivityScope.inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +73,11 @@ class MainActivity : ru.android.base.BaseActivity<AppState>(), View {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mainActivityScope.close()
     }
 
     override fun renderData(appState: AppState) {

@@ -5,7 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
+import org.koin.android.ext.android.getKoin
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.qualifier.named
 import ru.android.base.BaseActivity
 import ru.android.history.R
 import ru.android.history.databinding.AcHistoryBinding
@@ -16,7 +18,9 @@ class HistoryActivity : BaseActivity<AppState>() {
     private val binding by lazy { AcHistoryBinding.inflate(layoutInflater) }
     private val adapter by lazy { HistoryAdapter() }
 
-    override val model by viewModel<HistoryViewModel>()
+    private val scope = getKoin().createScope("HistoryActivityId", named<HistoryActivity>())
+
+    override val model by scope.inject<HistoryViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +29,11 @@ class HistoryActivity : BaseActivity<AppState>() {
         binding.historyActivityRecyclerview.layoutManager =
             LinearLayoutManager(this)
         binding.historyActivityRecyclerview.adapter = adapter
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.close()
     }
 
     override fun renderData(appState: AppState) {
