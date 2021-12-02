@@ -2,6 +2,9 @@ package ru.android.mytranslator.ui.description
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -34,6 +37,11 @@ class DescriptionActivity : AppCompatActivity() {
             startLoadingOrShowError()
         }
         binding.root.isRefreshing = true
+
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+             val renderEffect =  RenderEffect.createBlurEffect(16f, 16f, Shader.TileMode.MIRROR)
+             binding.descriptionImage.setRenderEffect(renderEffect)
+        }
 
         setData()
     }

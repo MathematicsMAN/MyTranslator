@@ -1,14 +1,21 @@
 package ru.android.mytranslator.ui.activity
 
+import android.animation.ObjectAnimator
+import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.ViewTreeObserver
+import android.view.animation.AnticipateInterpolator
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.core.animation.doOnEnd
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -26,7 +33,6 @@ import ru.android.mytranslator.viewmodel.MainViewModel
 
 class MainActivity : ru.android.base.BaseActivity<AppState>(), View {
 
-    //    private lateinit var binding: AcMainBinding
     private var adapter: MainAdapter? = null
 
     private val searchFab by viewById<FloatingActionButton>(R.id.search_fab)
@@ -36,10 +42,60 @@ class MainActivity : ru.android.base.BaseActivity<AppState>(), View {
 
     override val model: MainViewModel by mainActivityScope.inject()
 
+    private fun setSplashScreenDelay() {
+        var isHideSplashScreen = false
+
+        val timer = object : CountDownTimer(3000, 1000) {
+            override fun onTick(p0: Long) {}
+
+            override fun onFinish() {
+                isHideSplashScreen = true
+            }
+        }
+        timer.start()
+
+        val content = findViewById<android.view.View>(R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    return if (isHideSplashScreen) {
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun animateSplashScreenHide() {
+        splashScreen.setOnExitAnimationListener { splashScreenView ->
+            val slideLeft = ObjectAnimator.ofFloat(
+                splashScreenView,
+                android.view.View.TRANSLATION_X,
+                0f,
+                -splashScreenView.height.toFloat()
+            )
+            slideLeft.interpolator = AnticipateInterpolator()
+            slideLeft.duration = 1000L
+
+            slideLeft.doOnEnd { splashScreenView.remove() }
+            slideLeft.start()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.ac_main)
+
+        setSplashScreenDelay()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            animateSplashScreenHide()
+        }
+
         searchFab.setOnClickListener {
             val searchDialogFragment = SearchDialogFragment.newInstance()
             searchDialogFragment.setOnSearchClickListener(object :
