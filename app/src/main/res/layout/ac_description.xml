@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/descriptionHeader"
+            style="@style/HeaderTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Header" />
+
+        <TextView
+            android:id="@+id/descriptionText"
+            style="@style/HeaderTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_medium"
+            tools:text="Header" />
+
+        <ru.android.mytranslator.ui.views.EqualSizeImageView
+            android:id="@+id/descriptionImage"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginTop="@dimen/margin_medium"
+            tools:background="@color/purple_200" />
+    </LinearLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

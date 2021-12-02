@@ -1,31 +1,102 @@
 package ru.android.mytranslator.ui.activity
 
+import android.animation.ObjectAnimator
+import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.ViewTreeObserver
+import android.view.animation.AnticipateInterpolator
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.core.animation.doOnEnd
 import androidx.recyclerview.widget.LinearLayoutManager
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import ru.android.mytranslator.AppState
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.koin.android.ext.android.getKoin
+import org.koin.core.qualifier.named
+import ru.android.history.ui.HistoryActivity
+import ru.android.models.AppState
+import ru.android.models.View
 import ru.android.mytranslator.R
-import ru.android.mytranslator.View
-import ru.android.mytranslator.databinding.AcMainBinding
 import ru.android.mytranslator.ui.MainAdapter
 import ru.android.mytranslator.ui.SearchDialogFragment
+import ru.android.mytranslator.ui.description.DescriptionActivity
+import ru.android.mytranslator.ui.viewById
 import ru.android.mytranslator.viewmodel.MainViewModel
 
-class MainActivity : BaseActivity<AppState>(), View {
+class MainActivity : ru.android.base.BaseActivity<AppState>(), View {
 
-    private lateinit var binding: AcMainBinding
     private var adapter: MainAdapter? = null
 
-    override val model: MainViewModel by viewModel()
+    private val searchFab by viewById<FloatingActionButton>(R.id.search_fab)
+
+    private val mainActivityScope =
+        getKoin().createScope("MainActivityScope", named<MainActivity>())
+
+    override val model: MainViewModel by mainActivityScope.inject()
+
+    private fun setSplashScreenDelay() {
+        var isHideSplashScreen = false
+
+        val timer = object : CountDownTimer(3000, 1000) {
+            override fun onTick(p0: Long) {}
+
+            override fun onFinish() {
+                isHideSplashScreen = true
+            }
+        }
+        timer.start()
+
+        val content = findViewById<android.view.View>(R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    return if (isHideSplashScreen) {
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun animateSplashScreenHide() {
+        splashScreen.setOnExitAnimationListener { splashScreenView ->
+            val slideLeft = ObjectAnimator.ofFloat(
+                splashScreenView,
+                android.view.View.TRANSLATION_X,
+                0f,
+                -splashScreenView.height.toFloat()
+            )
+            slideLeft.interpolator = AnticipateInterpolator()
+            slideLeft.duration = 1000L
+
+            slideLeft.doOnEnd { splashScreenView.remove() }
+            slideLeft.start()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = AcMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        binding.searchFab.setOnClickListener {
+        setContentView(R.layout.ac_main)
+
+        setSplashScreenDelay()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            animateSplashScreenHide()
+        }
+
+        searchFab.setOnClickListener {
             val searchDialogFragment = SearchDialogFragment.newInstance()
             searchDialogFragment.setOnSearchClickListener(object :
                 SearchDialogFragment.OnSearchClickListener {
@@ -36,9 +107,41 @@ class MainActivity : BaseActivity<AppState>(), View {
             searchDialogFragment.show(supportFragmentManager, BOTTOM_SHEET_FRAGMENT_DIALOG_TAG)
         }
 
-        binding.mainActivityRecyclerview.layoutManager = LinearLayoutManager(applicationContext)
-        adapter = MainAdapter { }
-        binding.mainActivityRecyclerview.adapter = adapter
+        val recycler by viewById<RecyclerView>(R.id.main_activity_recyclerview)
+        recycler.layoutManager = LinearLayoutManager(applicationContext)
+        adapter = MainAdapter { dataModel ->
+            startActivity(
+                DescriptionActivity.getIntent(
+                    this,
+                    word = dataModel.text.orEmpty(),
+                    description = dataModel.meaning?.joinToString {
+                        it.translation?.translation.orEmpty()
+                    }.orEmpty(),
+                    imageUrl = dataModel.meaning?.firstOrNull()?.imageUrl
+                )
+            )
+        }
+        recycler.adapter = adapter
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.historyItem -> {
+                startActivity(HistoryActivity.createIntent(this))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mainActivityScope.close()
     }
 
     override fun renderData(appState: AppState) {
@@ -50,24 +153,27 @@ class MainActivity : BaseActivity<AppState>(), View {
                 } else {
                     showViewSuccess()
                     if (adapter == null) {
-                        binding.mainActivityRecyclerview.layoutManager =
+                        val recycler by viewById<RecyclerView>(R.id.main_activity_recyclerview)
+                        recycler.layoutManager =
                             LinearLayoutManager(applicationContext)
                         adapter = MainAdapter { }
-                        binding.mainActivityRecyclerview.adapter = adapter
+                        recycler.adapter = adapter
                     } else {
                         adapter!!.submitList(dataModel)
                     }
                 }
             }
             is AppState.Loading -> {
+                val progressBarHorizontal by viewById<ProgressBar>(R.id.progress_bar_horizontal)
+                val progressBarRound by viewById<ProgressBar>(R.id.progress_bar_round)
                 showViewLoading()
                 if (appState.progress != null) {
-                    binding.progressBarHorizontal.visibility = VISIBLE
-                    binding.progressBarRound.visibility = GONE
-                    binding.progressBarHorizontal.progress = appState.progress
+                    progressBarHorizontal.visibility = VISIBLE
+                    progressBarRound.visibility = GONE
+                    progressBarHorizontal.progress = appState.progress!!
                 } else {
-                    binding.progressBarHorizontal.visibility = GONE
-                    binding.progressBarRound.visibility = VISIBLE
+                    progressBarHorizontal.visibility = GONE
+                    progressBarRound.visibility = VISIBLE
                 }
             }
             is AppState.Error -> {
@@ -77,29 +183,44 @@ class MainActivity : BaseActivity<AppState>(), View {
     }
 
     private fun showErrorScreen(error: String?) {
+        val errorTextview by viewById<TextView>(R.id.error_textview)
+        val reloadButton by viewById<Button>(R.id.reload_button)
+
         showViewError()
-        binding.errorTextview.text = error ?: getString(R.string.undefined_error)
-        binding.reloadButton.setOnClickListener {
+        errorTextview.text = error ?: getString(R.string.undefined_error)
+        reloadButton.setOnClickListener {
             model.getWordDescriptions("hi", true)
         }
     }
 
     private fun showViewSuccess() {
-        binding.successLinearLayout.visibility = VISIBLE
-        binding.loadingFrameLayout.visibility = GONE
-        binding.errorLinearLayout.visibility = GONE
+        val successLinearLayout by viewById<FrameLayout>(R.id.success_linear_layout)
+        val loadingFrameLayout by viewById<FrameLayout>(R.id.loading_frame_layout)
+        val errorLinearLayout by viewById<FrameLayout>(R.id.error_linear_layout)
+
+        successLinearLayout.visibility = VISIBLE
+        loadingFrameLayout.visibility = GONE
+        errorLinearLayout.visibility = GONE
     }
 
     private fun showViewLoading() {
-        binding.successLinearLayout.visibility = GONE
-        binding.loadingFrameLayout.visibility = VISIBLE
-        binding.errorLinearLayout.visibility = GONE
+        val successLinearLayout by viewById<FrameLayout>(R.id.success_linear_layout)
+        val loadingFrameLayout by viewById<FrameLayout>(R.id.loading_frame_layout)
+        val errorLinearLayout by viewById<FrameLayout>(R.id.error_linear_layout)
+
+        successLinearLayout.visibility = GONE
+        loadingFrameLayout.visibility = VISIBLE
+        errorLinearLayout.visibility = GONE
     }
 
     private fun showViewError() {
-        binding.successLinearLayout.visibility = GONE
-        binding.loadingFrameLayout.visibility = GONE
-        binding.errorLinearLayout.visibility = VISIBLE
+        val successLinearLayout by viewById<FrameLayout>(R.id.success_linear_layout)
+        val loadingFrameLayout by viewById<FrameLayout>(R.id.loading_frame_layout)
+        val errorLinearLayout by viewById<FrameLayout>(R.id.error_linear_layout)
+
+        successLinearLayout.visibility = GONE
+        loadingFrameLayout.visibility = GONE
+        errorLinearLayout.visibility = VISIBLE
     }
 
     companion object {
